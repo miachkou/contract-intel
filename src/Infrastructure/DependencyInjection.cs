@@ -1,4 +1,6 @@
+using Application.Interfaces;
 using Infrastructure.Persistence;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,6 +48,10 @@ public static class DependencyInjection
                 options.EnableSensitiveDataLogging();
             }
         });
+
+        // Register repositories
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+        services.AddScoped<IContractRepository, ContractRepository>();
 
         return services;
     }
