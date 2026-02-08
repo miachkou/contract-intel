@@ -1,6 +1,7 @@
 using Application.Interfaces;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Infrastructure.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -62,6 +63,12 @@ public static class DependencyInjection
             var logger = sp.GetRequiredService<ILogger<LocalFileStorageService>>();
             return new LocalFileStorageService(storageRoot, logger);
         });
+
+        // Register PDF text extraction service
+        services.AddScoped<IPdfTextExtractionService, PdfPigTextExtractionService>();
+
+        // Register clause detection service
+        services.AddScoped<IClauseDetectionService, RegexClauseDetectionService>();
 
         return services;
     }
