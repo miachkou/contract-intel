@@ -112,7 +112,9 @@ export function ContractsPage() {
                                     <td className="vendor-cell">{contract.vendor}</td>
                                     <td className="title-cell">{contract.title}</td>
                                     <td className="date-cell">
-                                        {new Date(contract.renewalDate).toLocaleDateString()}
+                                        {contract.renewalDate
+                                            ? new Date(contract.renewalDate).toLocaleDateString()
+                                            : 'N/A'}
                                     </td>
                                     <td className="risk-cell">
                                         <span className={`risk-badge risk-${getRiskLevel(contract.riskScore ?? 0)}`}>
