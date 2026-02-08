@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Application.Models;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
@@ -64,6 +65,11 @@ public static class DependencyInjection
             return new LocalFileStorageService(storageRoot, logger);
         });
 
+        // Configure and register risk scoring service
+        var riskScoringSection = configuration.GetSection(RiskScoringOptions.SectionName);
+        services.Configure<RiskScoringOptions>(riskScoringSection);
+        services.AddScoped<IRiskScoringService, RiskScoringService>();
+      
         // Register PDF text extraction service
         services.AddScoped<IPdfTextExtractionService, PdfPigTextExtractionService>();
 
