@@ -7,19 +7,23 @@ import './ContractsPage.css';
 export function ContractsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // Read filters from URL
-    const [renewalDays, setRenewalDays] = useState(searchParams.get('renewalDays') || '');
-    const [minRisk, setMinRisk] = useState(searchParams.get('minRisk') || '');
+    // Read active filters from URL (these are the applied filters)
+    const activeRenewalDays = searchParams.get('renewalDays') || '';
+    const activeMinRisk = searchParams.get('minRisk') || '';
 
-    // Calculate renewal date from days
-    const renewalBefore = renewalDays
-        ? new Date(Date.now() + parseInt(renewalDays) * 24 * 60 * 60 * 1000).toISOString()
+    // Local state for filter inputs (what user is typing)
+    const [renewalDays, setRenewalDays] = useState(activeRenewalDays);
+    const [minRisk, setMinRisk] = useState(activeMinRisk);
+
+    // Calculate query parameters from active filters only
+    const renewalBefore = activeRenewalDays
+        ? new Date(Date.now() + parseInt(activeRenewalDays) * 24 * 60 * 60 * 1000).toISOString()
         : undefined;
-    const minRiskScore = minRisk ? parseFloat(minRisk) : undefined;
+    const minRiskScore = activeMinRisk ? parseFloat(activeMinRisk) : undefined;
 
-    // Use React Query for data fetching
+    // Use React Query for data fetching - queryKey only changes when active filters change
     const { data: contracts = [], isLoading, error } = useQuery({
-        queryKey: ['contracts', renewalBefore, minRiskScore],
+        queryKey: ['contracts', activeRenewalDays, activeMinRisk],
         queryFn: async () => {
             const response = await contractsApi.getAll({
                 beforeRenewal: renewalBefore,
