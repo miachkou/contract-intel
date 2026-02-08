@@ -26,7 +26,7 @@ export function ContractsPage() {
         queryKey: ['contracts', activeRenewalDays, activeMinRisk],
         queryFn: async () => {
             const response = await contractsApi.getAll({
-                beforeRenewal: renewalBefore,
+                renewalBefore: renewalBefore,
                 minRisk: minRiskScore,
             });
             return response.data;
@@ -112,9 +112,7 @@ export function ContractsPage() {
                                     <td className="vendor-cell">{contract.vendor}</td>
                                     <td className="title-cell">{contract.title}</td>
                                     <td className="date-cell">
-                                        {contract.renewalDate
-                                            ? new Date(contract.renewalDate).toLocaleDateString()
-                                            : 'N/A'}
+                                        {new Date(contract.renewalDate).toLocaleDateString()}
                                     </td>
                                     <td className="risk-cell">
                                         <span className={`risk-badge risk-${getRiskLevel(contract.riskScore ?? 0)}`}>
