@@ -64,8 +64,8 @@ public class ContractRepository : Repository<Contract>, IContractRepository
 
         return await _dbSet
             .AsNoTracking()
-            .Where(c => c.RenewalDate.HasValue 
-                     && c.RenewalDate >= today 
+            .Where(c => c.RenewalDate.HasValue
+                     && c.RenewalDate >= today
                      && c.RenewalDate <= cutoffDate)
             .OrderBy(c => c.RenewalDate)
             .Skip(skip)
