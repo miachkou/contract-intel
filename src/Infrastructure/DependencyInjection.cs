@@ -69,6 +69,9 @@ public static class DependencyInjection
         var riskScoringSection = configuration.GetSection(RiskScoringOptions.SectionName);
         services.Configure<RiskScoringOptions>(riskScoringSection);
         services.AddScoped<IRiskScoringService, RiskScoringService>();
+      
+        // Register PDF text extraction service
+        services.AddScoped<IPdfTextExtractionService, PdfPigTextExtractionService>();
 
         return services;
     }
