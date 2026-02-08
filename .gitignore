@@ -25,6 +25,9 @@ out/
 *.db-wal
 contractintel.db*
 
+# File storage
+storage/
+
 # NuGet Packages
 *.nupkg
 **/packages/*

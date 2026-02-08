@@ -1,7 +1,6 @@
+using Application.Interfaces;
 using Domain.Entities;
-using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.Controllers;
 
@@ -9,34 +8,61 @@ namespace WebApi.Controllers;
 [Route("api/[controller]")]
 public class ContractsController : ControllerBase
 {
-    private readonly ContractIntelDbContext _context;
+    private readonly IContractRepository _contractRepository;
 
-    public ContractsController(ContractIntelDbContext context)
+    public ContractsController(IContractRepository contractRepository)
     {
-        _context = context;
+        _contractRepository = contractRepository;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Contract>>> GetContracts()
     {
-        return await _context.Contracts
-            .Include(c => c.Documents)
-            .Include(c => c.Clauses)
-            .ToListAsync();
+        var contracts = await _contractRepository.GetAllAsync();
+        return Ok(contracts);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Contract>> GetContract(Guid id)
     {
-        var contract = await _context.Contracts
-            .Include(c => c.Documents)
-            .Include(c => c.Clauses)
-            .FirstOrDefaultAsync(c => c.Id == id);
+        var contract = await _contractRepository.GetByIdWithDetailsAsync(id);
 
         if (contract == null)
             return NotFound();
 
-        return contract;
+        return Ok(contract);
+    }
+
+    [HttpGet("search")]
+    public async Task<ActionResult<IEnumerable<Contract>>> SearchContracts(
+        [FromQuery] string? vendor = null,
+        [FromQuery] decimal? minRisk = null,
+        [FromQuery] DateTime? renewalBefore = null,
+        [FromQuery] int skip = 0,
+        [FromQuery] int take = 50)
+    {
+        var contracts = await _contractRepository.SearchAsync(
+            vendorContains: vendor,
+            minRiskScore: minRisk,
+            renewalBefore: renewalBefore,
+            skip: skip,
+            take: take);
+
+        return Ok(contracts);
+    }
+
+    [HttpGet("upcoming-renewals")]
+    public async Task<ActionResult<IEnumerable<Contract>>> GetUpcomingRenewals(
+        [FromQuery] int daysAhead = 90,
+        [FromQuery] int skip = 0,
+        [FromQuery] int take = 50)
+    {
+        var contracts = await _contractRepository.GetUpcomingRenewalsAsync(
+            daysAhead: daysAhead,
+            skip: skip,
+            take: take);
+
+        return Ok(contracts);
     }
 
     [HttpPost]
@@ -46,9 +72,8 @@ public class ContractsController : ControllerBase
         contract.CreatedAt = DateTime.UtcNow;
         contract.UpdatedAt = DateTime.UtcNow;
 
-        _context.Contracts.Add(contract);
-        await _context.SaveChangesAsync();
+        var created = await _contractRepository.AddAsync(contract);
 
-        return CreatedAtAction(nameof(GetContract), new { id = contract.Id }, contract);
+        return CreatedAtAction(nameof(GetContract), new { id = created.Id }, created);
     }
 }
