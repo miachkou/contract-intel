@@ -47,7 +47,7 @@ public class ContractRepository : Repository<Contract>, IContractRepository
 
         return await query
             .OrderBy(c => c.RenewalDate)
-            .ThenByDescending(c => c.RiskScore)
+            .ThenByDescending(c => (double?)c.RiskScore)
             .Skip(skip)
             .Take(take)
             .ToListAsync(cancellationToken);

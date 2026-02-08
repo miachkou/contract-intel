@@ -1,110 +1,110 @@
 .renewals-page {
-  padding: 1rem 0;
+    padding: 1rem 0;
 }
 
 .page-header .subtitle {
-  display: block;
-  margin-top: 0.5rem;
-  color: #64748b;
-  font-size: 0.875rem;
+    display: block;
+    margin-top: 0.5rem;
+    color: #64748b;
+    font-size: 0.875rem;
 }
 
 .renewals-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .renewal-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.2s;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
 }
 
 .renewal-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .renewal-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-  margin-bottom: 1rem;
-  gap: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+    gap: 1rem;
 }
 
 .renewal-card-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: #1e293b;
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1e293b;
 }
 
 .renewal-card-header .vendor {
-  margin: 0.25rem 0 0 0;
-  color: #64748b;
-  font-size: 0.875rem;
+    margin: 0.25rem 0 0 0;
+    color: #64748b;
+    font-size: 0.875rem;
 }
 
 .renewal-card-body {
-  padding-top: 1rem;
-  border-top: 1px solid #f1f5f9;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f5f9;
 }
 
 .renewal-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
 }
 
 .renewal-date {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .renewal-date .label {
-  font-size: 0.75rem;
-  color: #64748b;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .renewal-date .date {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1e293b;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
 }
 
 .renewal-date .days-until {
-  font-size: 0.875rem;
-  color: #f59e0b;
-  font-weight: 500;
+    font-size: 0.875rem;
+    color: #f59e0b;
+    font-weight: 500;
 }
 
 .renewal-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
 }
 
 .auto-renew-badge {
-  padding: 0.25rem 0.75rem;
-  background: #dbeafe;
-  color: #1e40af;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    background: #dbeafe;
+    color: #1e40af;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
 .end-date {
-  font-size: 0.875rem;
-  color: #64748b;
+    font-size: 0.875rem;
+    color: #64748b;
 }
