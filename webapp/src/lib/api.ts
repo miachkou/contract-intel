@@ -60,7 +60,7 @@ export interface CreateContractRequest {
 
 // API helpers
 export const contractsApi = {
-    getAll: (params?: { vendor?: string; beforeRenewal?: string; minRisk?: number }) =>
+    getAll: (params?: { vendor?: string; renewalBefore?: string; minRisk?: number }) =>
         api.get<Contract[]>('/contracts', { params }),
 
     getById: (id: string) =>

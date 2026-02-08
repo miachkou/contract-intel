@@ -26,7 +26,7 @@ export function ContractsPage() {
         queryKey: ['contracts', activeRenewalDays, activeMinRisk],
         queryFn: async () => {
             const response = await contractsApi.getAll({
-                beforeRenewal: renewalBefore,
+                renewalBefore: renewalBefore,
                 minRisk: minRiskScore,
             });
             return response.data;

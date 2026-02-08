@@ -1,56 +1,104 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { contractsApi, type Contract } from '../lib/api';
 import './RenewalsPage.css';
 
 export function RenewalsPage() {
-    const [contracts, setContracts] = useState<Contract[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    useEffect(() => {
-        loadUpcomingRenewals();
-    }, []);
+    // Read active filters from URL
+    const activeWindowDays = searchParams.get('days') || '90';
+    const activeMinRisk = searchParams.get('minRisk') || '';
 
-    const loadUpcomingRenewals = async () => {
-        try {
-            setLoading(true);
-            setError(null);
+    // Local state for filter inputs
+    const [windowDays, setWindowDays] = useState(activeWindowDays);
+    const [minRisk, setMinRisk] = useState(activeMinRisk);
 
-            // Get contracts with renewals in the next 90 days
-            const ninetyDaysFromNow = new Date();
-            ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
+    // Calculate renewal date from window
+    const renewalBefore = activeWindowDays
+        ? new Date(Date.now() + parseInt(activeWindowDays) * 24 * 60 * 60 * 1000).toISOString()
+        : undefined;
+    const minRiskScore = activeMinRisk ? parseFloat(activeMinRisk) : undefined;
 
+    // Fetch contracts with React Query
+    const { data: contracts = [], isLoading, error } = useQuery({
+        queryKey: ['renewals', activeWindowDays, activeMinRisk],
+        queryFn: async () => {
             const response = await contractsApi.getAll({
-                beforeRenewal: ninetyDaysFromNow.toISOString().split('T')[0],
+                renewalBefore: renewalBefore,
+                minRisk: minRiskScore,
             });
 
             // Filter and sort by renewal date
-            const withRenewals = response.data
+            return response.data
                 .filter(c => c.renewalDate)
                 .sort((a, b) => new Date(a.renewalDate!).getTime() - new Date(b.renewalDate!).getTime());
+        },
+    });
 
-            setContracts(withRenewals);
-        } catch (err) {
-            setError('Failed to load renewals');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
+    const handleApplyFilters = () => {
+        const params = new URLSearchParams();
+        if (windowDays) params.set('days', windowDays);
+        if (minRisk) params.set('minRisk', minRisk);
+        setSearchParams(params);
     };
 
-    if (loading) return <div className="message">Loading renewals...</div>;
-    if (error) return <div className="message error">{error}</div>;
+    const handleClearFilters = () => {
+        setWindowDays('90');
+        setMinRisk('');
+        setSearchParams(new URLSearchParams({ days: '90' }));
+    };
+
+    if (isLoading) return <div className="message">Loading renewals...</div>;
+    if (error) return <div className="message error">Failed to load renewals</div>;
 
     return (
         <div className="renewals-page">
             <div className="page-header">
                 <h2>Upcoming Renewals</h2>
-                <span className="subtitle">Next 90 days</span>
+            </div>
+
+            <div className="filters-section">
+                <div className="filter-group">
+                    <label htmlFor="windowDays">Renewal Window (days)</label>
+                    <input
+                        id="windowDays"
+                        type="number"
+                        min="1"
+                        placeholder="e.g., 90"
+                        value={windowDays}
+                        onChange={(e) => setWindowDays(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleApplyFilters()}
+                    />
+                </div>
+                <div className="filter-group">
+                    <label htmlFor="minRisk">Minimum Risk Score</label>
+                    <input
+                        id="minRisk"
+                        type="number"
+                        min="0"
+                        max="100"
+                        placeholder="e.g., 25"
+                        value={minRisk}
+                        onChange={(e) => setMinRisk(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleApplyFilters()}
+                    />
+                </div>
+                <div className="filter-actions">
+                    <button className="btn btn-primary" onClick={handleApplyFilters}>
+                        Apply Filters
+                    </button>
+                    <button className="btn btn-secondary" onClick={handleClearFilters}>
+                        Clear
+                    </button>
+                </div>
             </div>
 
             {contracts.length === 0 ? (
-                <div className="message">No upcoming renewals in the next 90 days.</div>
+                <div className="message">
+                    No renewals found within {activeWindowDays} days{activeMinRisk ? ` with risk score ≥ ${activeMinRisk}` : ''}.
+                </div>
             ) : (
                 <div className="renewals-list">
                     {contracts.map((contract) => (
@@ -60,8 +108,8 @@ export function RenewalsPage() {
                                     <h3>{contract.title}</h3>
                                     <p className="vendor">{contract.vendor}</p>
                                 </div>
-                                <span className={`risk-badge risk-${getRiskLevel(contract.riskScore)}`}>
-                                    Risk: {contract.riskScore}
+                                <span className={`risk-badge risk-${getRiskLevel(contract.riskScore ?? 0)}`}>
+                                    Risk: {contract.riskScore?.toFixed(1) ?? 'N/A'}
                                 </span>
                             </div>
 
