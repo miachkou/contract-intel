@@ -1,13 +1,33 @@
 namespace Application.Models;
 
-public class PdfTextContent
+/// <summary>
+/// Represents text extracted from a PDF with per-page breakdown.
+/// </summary>
+public sealed record PdfTextContent
 {
-    public string FullText { get; set; } = string.Empty;
-    public IReadOnlyList<PageText> Pages { get; set; } = Array.Empty<PageText>();
+    /// <summary>
+    /// The full concatenated text of the entire document.
+    /// </summary>
+    public required string FullText { get; init; }
+
+    /// <summary>
+    /// Per-page text breakdown.
+    /// </summary>
+    public required IReadOnlyList<PageText> Pages { get; init; }
 }
 
-public class PageText
+/// <summary>
+/// Represents text extracted from a single PDF page.
+/// </summary>
+public sealed record PageText
 {
-    public int PageNumber { get; set; }
-    public string Text { get; set; } = string.Empty;
+    /// <summary>
+    /// 1-based page number.
+    /// </summary>
+    public required int PageNumber { get; init; }
+
+    /// <summary>
+    /// The text content of this page.
+    /// </summary>
+    public required string Text { get; init; }
 }

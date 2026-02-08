@@ -2,13 +2,16 @@ using Application.Models;
 
 namespace Application.Interfaces;
 
+/// <summary>
+/// Service for extracting text content from PDF files.
+/// </summary>
 public interface IPdfTextExtractionService
 {
     /// <summary>
-    /// Extracts text from a PDF stream, returning full text and per-page text.
+    /// Extracts text from a PDF file with per-page breakdown.
     /// </summary>
-    /// <param name="pdfStream">The PDF file stream to read from.</param>
+    /// <param name="filePath">The absolute path to the PDF file.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>PDF text content with full text and page-by-page breakdown.</returns>
-    Task<PdfTextContent> ExtractTextAsync(Stream pdfStream, CancellationToken cancellationToken = default);
+    /// <returns>The extracted text content with page information.</returns>
+    Task<PdfTextContent> ExtractTextAsync(string filePath, CancellationToken cancellationToken = default);
 }

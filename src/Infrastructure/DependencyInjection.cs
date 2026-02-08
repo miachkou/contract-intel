@@ -65,13 +65,16 @@ public static class DependencyInjection
             return new LocalFileStorageService(storageRoot, logger);
         });
 
+        // Register PDF text extraction service
+        services.AddScoped<IPdfTextExtractionService, PdfPigTextExtractionService>();
+
+        // Register clause detection service
+        services.AddScoped<IClauseDetectionService, RegexClauseDetectionService>();
+
         // Configure and register risk scoring service
         var riskScoringSection = configuration.GetSection(RiskScoringOptions.SectionName);
         services.Configure<RiskScoringOptions>(riskScoringSection);
         services.AddScoped<IRiskScoringService, RiskScoringService>();
-      
-        // Register PDF text extraction service
-        services.AddScoped<IPdfTextExtractionService, PdfPigTextExtractionService>();
 
         return services;
     }

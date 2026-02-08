@@ -1,13 +1,14 @@
 using Application.Interfaces;
 using Application.Models;
 using Microsoft.Extensions.Logging;
-using System.Text;
 using UglyToad.PdfPig;
-using UglyToad.PdfPig.Content;
 
 namespace Infrastructure.Services;
 
-public class PdfPigTextExtractionService : IPdfTextExtractionService
+/// <summary>
+/// PDF text extraction service using PdfPig library.
+/// </summary>
+public sealed class PdfPigTextExtractionService : IPdfTextExtractionService
 {
     private readonly ILogger<PdfPigTextExtractionService> _logger;
 
@@ -16,88 +17,52 @@ public class PdfPigTextExtractionService : IPdfTextExtractionService
         _logger = logger;
     }
 
-    public async Task<PdfTextContent> ExtractTextAsync(Stream pdfStream, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<PdfTextContent> ExtractTextAsync(string filePath, CancellationToken cancellationToken = default)
     {
-        if (pdfStream == null || !pdfStream.CanRead)
+        if (!File.Exists(filePath))
         {
-            _logger.LogWarning("Invalid PDF stream provided");
-            return new PdfTextContent();
+            throw new FileNotFoundException("PDF file not found.", filePath);
         }
+
+        _logger.LogInformation("Extracting text from PDF: {FilePath}", filePath);
 
         try
         {
-            return await Task.Run(() => ExtractTextInternal(pdfStream), cancellationToken);
+            // PdfPig operations are synchronous, run on thread pool
+            return await Task.Run(() =>
+            {
+                using var document = PdfDocument.Open(filePath);
+                var pages = new List<PageText>();
+                var fullTextBuilder = new System.Text.StringBuilder();
+
+                foreach (var page in document.GetPages())
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var pageText = page.Text;
+                    pages.Add(new PageText
+                    {
+                        PageNumber = page.Number,
+                        Text = pageText
+                    });
+
+                    fullTextBuilder.AppendLine(pageText);
+                }
+
+                _logger.LogInformation("Successfully extracted text from {PageCount} pages.", pages.Count);
+
+                return new PdfTextContent
+                {
+                    FullText = fullTextBuilder.ToString(),
+                    Pages = pages
+                };
+            }, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogError(ex, "Error extracting text from PDF");
-            return new PdfTextContent();
+            _logger.LogError(ex, "Failed to extract text from PDF: {FilePath}", filePath);
+            throw new InvalidOperationException($"Failed to extract text from PDF: {ex.Message}", ex);
         }
-    }
-
-    private PdfTextContent ExtractTextInternal(Stream pdfStream)
-    {
-        try
-        {
-            using var document = PdfDocument.Open(pdfStream);
-
-            var pages = new List<PageText>();
-            var fullTextBuilder = new StringBuilder();
-
-            foreach (var page in document.GetPages())
-            {
-                var pageText = ExtractPageText(page);
-
-                pages.Add(new PageText
-                {
-                    PageNumber = page.Number,
-                    Text = pageText
-                });
-
-                fullTextBuilder.AppendLine(pageText);
-            }
-
-            return new PdfTextContent
-            {
-                FullText = NormalizeText(fullTextBuilder.ToString()),
-                Pages = pages
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to open or read PDF document");
-            return new PdfTextContent();
-        }
-    }
-
-    private string ExtractPageText(Page page)
-    {
-        try
-        {
-            var text = page.Text;
-            return NormalizeText(text);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to extract text from page {PageNumber}", page.Number);
-            return string.Empty;
-        }
-    }
-
-    private string NormalizeText(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-            return string.Empty;
-
-        // Normalize line breaks
-        text = text.Replace("\r\n", "\n").Replace("\r", "\n");
-
-        // Replace multiple spaces with single space
-        text = System.Text.RegularExpressions.Regex.Replace(text, @" +", " ");
-
-        // Replace multiple newlines with double newline (paragraph breaks)
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"\n{3,}", "\n\n");
-
-        return text.Trim();
     }
 }
