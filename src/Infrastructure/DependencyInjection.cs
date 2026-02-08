@@ -76,6 +76,9 @@ public static class DependencyInjection
         services.Configure<RiskScoringOptions>(riskScoringSection);
         services.AddScoped<IRiskScoringService, RiskScoringService>();
 
+        // Register contract extraction orchestration service
+        services.AddScoped<IContractExtractionService, ContractExtractionService>();
+
         return services;
     }
 }
