@@ -36,12 +36,15 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-// Development-only: Ensure database is created
+// Development-only: Ensure database is created and seeded
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ContractIntelDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
     await dbContext.Database.EnsureCreatedAsync();
+    await WebApi.DevDataSeeder.SeedAsync(dbContext, logger);
 }
 
 // Configure the HTTP request pipeline.
