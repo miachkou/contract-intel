@@ -1,0 +1,15 @@
+{
+  "name": "contract-intel-pr-helper",
+  "version": "1.0.0",
+  "description": "PR Review Helper for Contract Intel",
+  "type": "module",
+  "scripts": {
+    "pr-helper": "node pr-review-helper.js"
+  },
+  "keywords": ["pr", "review", "helper"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.0.0"
+  }
+}

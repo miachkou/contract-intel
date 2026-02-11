@@ -85,3 +85,26 @@ To manually manage migrations (e.g., creating new migrations, rolling back, or r
 ```bash
 dotnet ef database update --project src/Infrastructure --startup-project src/WebApi
 ```
+
+## Contributing
+
+### PR Review Helper
+
+We provide a PR review helper to streamline the review process. See [PR_REVIEW_GUIDE.md](PR_REVIEW_GUIDE.md) for comprehensive review guidelines.
+
+To use the automated helper:
+
+```bash
+cd scripts
+npm install
+npm run pr-helper generate  # Generate PR description and commit message
+npm run pr-helper review    # Quick review checklist
+```
+
+The helper analyzes your changes and provides:
+- Conventional commit message suggestions
+- PR description template with your changes categorized
+- Code analysis for common issues (async patterns, error handling, performance, etc.)
+- Review checklist
+
+See [scripts/README.md](scripts/README.md) for more details.
