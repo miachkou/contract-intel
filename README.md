@@ -78,7 +78,7 @@ dotnet test
 
 The application uses SQLite by default for development. Migrations are applied automatically on startup in development mode.
 
-To manually manage migrations:
+To manually manage migrations (e.g., creating new migrations, rolling back, or running migrations in non-development environments):
 ```bash
 dotnet ef database update --project src/Infrastructure --startup-project src/WebApi
 ```

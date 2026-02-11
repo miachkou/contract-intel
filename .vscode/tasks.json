@@ -33,7 +33,7 @@
         "base": "$msCompile",
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "^dotnet watch ⌚",
+          "beginsPattern": "^dotnet watch",
           "endsPattern": "^\\s*Now listening on:\\s+https?://\\S+"
         }
       },
