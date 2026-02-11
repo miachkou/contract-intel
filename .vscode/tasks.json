@@ -29,7 +29,14 @@
       ],
       "group": "none",
       "isBackground": true,
-      "problemMatcher": "$msCompile",
+      "problemMatcher": {
+        "base": "$msCompile",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^dotnet watch ⌚",
+          "endsPattern": "^\\s*Now listening on:\\s+https?://\\S+"
+        }
+      },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -49,7 +56,16 @@
       },
       "group": "none",
       "isBackground": true,
-      "problemMatcher": [],
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\s*VITE",
+          "endsPattern": "^\\s*➜\\s+Local:\\s+https?://\\S+"
+        }
+      },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
