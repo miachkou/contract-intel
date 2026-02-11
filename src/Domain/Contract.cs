@@ -12,7 +12,7 @@ public class Contract
     public string? Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    
+
     public ICollection<Document> Documents { get; set; } = new List<Document>();
     public ICollection<Clause> Clauses { get; set; } = new List<Clause>();
 }
@@ -26,7 +26,7 @@ public class Document
     public long FileSize { get; set; }
     public string? MimeType { get; set; }
     public DateTime UploadedAt { get; set; }
-    
+
     public Contract Contract { get; set; } = null!;
     public ICollection<Clause> Clauses { get; set; } = new List<Clause>();
 }
@@ -42,7 +42,9 @@ public class Clause
     public int? PageNumber { get; set; }
     public string? Analysis { get; set; }
     public DateTime ExtractedAt { get; set; }
-    
+    public string? ApprovedBy { get; set; }
+    public DateTime? ApprovedAt { get; set; }
+
     public Contract Contract { get; set; } = null!;
     public Document? Document { get; set; }
 }

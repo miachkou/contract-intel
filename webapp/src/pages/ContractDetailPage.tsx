@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { contractsApi, type Contract, type Clause } from '../lib/api';
+import { contractsApi, type UpdateClauseRequest } from '../lib/api';
 import './ContractDetailPage.css';
 
 export function ContractDetailPage() {
@@ -10,6 +10,8 @@ export function ContractDetailPage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [extractSuccess, setExtractSuccess] = useState(false);
+    const [editingClauseId, setEditingClauseId] = useState<string | null>(null);
+    const [editForm, setEditForm] = useState<{ clauseType: string; excerpt: string }>({ clauseType: '', excerpt: '' });
 
     // Fetch contract details
     const { data: contract, isLoading: loadingContract, error: contractError } = useQuery({
@@ -53,6 +55,18 @@ export function ContractDetailPage() {
         },
     });
 
+    // Update clause mutation
+    const updateClauseMutation = useMutation({
+        mutationFn: ({ clauseId, data }: { clauseId: string; data: UpdateClauseRequest }) =>
+            contractsApi.updateClause(id!, clauseId, data),
+        onSuccess: () => {
+            // Refresh contract and clauses after update
+            queryClient.invalidateQueries({ queryKey: ['contract', id] });
+            queryClient.invalidateQueries({ queryKey: ['clauses', id] });
+            setEditingClauseId(null);
+        },
+    });
+
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file && file.type === 'application/pdf') {
@@ -71,6 +85,36 @@ export function ContractDetailPage() {
 
     const handleExtract = () => {
         extractMutation.mutate();
+    };
+
+    const handleEditClause = (clause: any) => {
+        setEditingClauseId(clause.id);
+        setEditForm({ clauseType: clause.clauseType, excerpt: clause.excerpt });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingClauseId(null);
+        setEditForm({ clauseType: '', excerpt: '' });
+    };
+
+    const handleSaveClause = (clauseId: string) => {
+        updateClauseMutation.mutate({
+            clauseId,
+            data: {
+                clauseType: editForm.clauseType,
+                excerpt: editForm.excerpt,
+            },
+        });
+    };
+
+    const handleApproveClause = (clauseId: string) => {
+        updateClauseMutation.mutate({
+            clauseId,
+            data: {
+                approved: true,
+                approvedBy: 'User', // In real app, get from auth context
+            },
+        });
     };
 
     if (loadingContract) return <div className="message">Loading contract details...</div>;
@@ -183,15 +227,84 @@ export function ContractDetailPage() {
                     <div className="clauses-list">
                         {clauses.map((clause) => (
                             <div key={clause.id} className="clause-item">
-                                <div className="clause-header">
-                                    <span className="clause-type">{formatClauseType(clause.clauseType)}</span>
-                                    <span className="clause-confidence">
-                                        {clause.confidence ? (clause.confidence * 100).toFixed(0) : 0}% confidence
-                                    </span>
-                                </div>
-                                <p className="clause-content">{clause.excerpt}</p>
-                                {clause.pageNumber && (
-                                    <span className="clause-page">Page {clause.pageNumber}</span>
+                                {editingClauseId === clause.id ? (
+                                    // Edit mode
+                                    <div className="clause-edit-form">
+                                        <div className="form-group">
+                                            <label htmlFor={`type-${clause.id}`}>Clause Type</label>
+                                            <input
+                                                id={`type-${clause.id}`}
+                                                type="text"
+                                                value={editForm.clauseType}
+                                                onChange={(e) => setEditForm({ ...editForm, clauseType: e.target.value })}
+                                                className="form-input"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor={`excerpt-${clause.id}`}>Excerpt</label>
+                                            <textarea
+                                                id={`excerpt-${clause.id}`}
+                                                value={editForm.excerpt}
+                                                onChange={(e) => setEditForm({ ...editForm, excerpt: e.target.value })}
+                                                className="form-textarea"
+                                                rows={4}
+                                            />
+                                        </div>
+                                        <div className="form-actions">
+                                            <button
+                                                className="btn btn-primary btn-sm"
+                                                onClick={() => handleSaveClause(clause.id)}
+                                                disabled={updateClauseMutation.isPending}
+                                            >
+                                                {updateClauseMutation.isPending ? 'Saving...' : 'Save'}
+                                            </button>
+                                            <button
+                                                className="btn btn-secondary btn-sm"
+                                                onClick={handleCancelEdit}
+                                                disabled={updateClauseMutation.isPending}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    // View mode
+                                    <>
+                                        <div className="clause-header">
+                                            <span className="clause-type">{formatClauseType(clause.clauseType)}</span>
+                                            <div className="clause-meta">
+                                                <span className="clause-confidence">
+                                                    {clause.confidence ? (clause.confidence * 100).toFixed(0) : 0}% confidence
+                                                </span>
+                                                {clause.approvedAt && (
+                                                    <span className="approved-badge">✓ Approved</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <p className="clause-content">{clause.excerpt}</p>
+                                        <div className="clause-footer">
+                                            {clause.pageNumber && (
+                                                <span className="clause-page">Page {clause.pageNumber}</span>
+                                            )}
+                                            <div className="clause-actions">
+                                                <button
+                                                    className="btn btn-link btn-sm"
+                                                    onClick={() => handleEditClause(clause)}
+                                                >
+                                                    Edit
+                                                </button>
+                                                {!clause.approvedAt && (
+                                                    <button
+                                                        className="btn btn-link btn-sm"
+                                                        onClick={() => handleApproveClause(clause.id)}
+                                                        disabled={updateClauseMutation.isPending}
+                                                    >
+                                                        Approve
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         ))}
