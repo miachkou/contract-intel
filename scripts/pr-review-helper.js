@@ -85,6 +85,8 @@ function analyzeCode(files, diff) {
 
 /**
  * Analyze C# files
+ * Note: These are simple heuristics to catch common issues. May produce false positives.
+ * Use as a starting point for review, not definitive judgments.
  */
 function analyzeCSharpFiles(files, diff, issues) {
     const diffLines = diff.split('\n');
@@ -95,58 +97,40 @@ function analyzeCSharpFiles(files, diff, issues) {
         issues.asyncPatterns.push('⚠️  Consider using async/await instead of .Result or .Wait() to avoid blocking');
     }
 
-    // Check for missing null checks on nullable references
-    if (addedLines.match(/\?\s*\.\s*\w+\s*(?!\?)/)) {
-        issues.nullSafety.push('ℹ️  Review null-conditional operators - ensure null cases are handled');
-    }
-
-    // Check for bare catch blocks
-    if (addedLines.match(/catch\s*\(\s*Exception\s+\w+\s*\)\s*\{[^}]*\}/s)) {
-        issues.errorHandling.push('⚠️  Catching generic Exception - consider catching specific exceptions');
-    }
-
     // Check for missing using statements with IDisposable
     if (addedLines.match(/new\s+\w*(Stream|Reader|Writer|Connection|Command)\w*/)) {
         issues.performance.push('ℹ️  Verify IDisposable objects use using statements or are properly disposed');
     }
 
-    // Check for N+1 query patterns
-    if (addedLines.match(/foreach.*\{[^}]*\.(First|Single|Where)\(/s)) {
-        issues.performance.push('⚠️  Potential N+1 query - consider using Include() or projection');
+    // Check for bare catch blocks (simplified check)
+    if (addedLines.match(/catch\s*\(\s*Exception[^)]*\)/)) {
+        issues.errorHandling.push('ℹ️  Review Exception handling - consider catching specific exception types');
     }
 
-    // Check for magic numbers
-    const magicNumbers = addedLines.match(/[^\w]((?!0|1|100)\d{2,})[^\w]/g);
-    if (magicNumbers && magicNumbers.length > 2) {
-        issues.codeSmells.push('ℹ️  Consider extracting magic numbers to named constants');
+    // Check for potential N+1 query patterns in foreach loops
+    if (addedLines.match(/foreach/) && addedLines.match(/\.(First|Single|Where|Count|Any)\(/)) {
+        issues.performance.push('ℹ️  Review database queries in loops - watch for N+1 patterns');
+    }
+
+    // Check for magic numbers (numbers 10+, excluding common values)
+    const magicNumbers = addedLines.match(/\b(?!0\b|1\b|10\b|100\b|1000\b)\d{2,}\b/g);
+    if (magicNumbers && magicNumbers.length > 3) {
+        issues.codeSmells.push('ℹ️  Consider extracting numeric constants to named values');
     }
 }
 
 /**
  * Analyze TypeScript/React files
+ * Note: These are simple heuristics to catch common issues. May produce false positives.
+ * Use as a starting point for review, not definitive judgments.
  */
 function analyzeTypeScriptFiles(files, diff, issues) {
     const diffLines = diff.split('\n');
     const addedLines = diffLines.filter(line => line.startsWith('+')).join('\n');
 
-    // Check for missing error handling in async
-    if (addedLines.match(/await\s+\w+/) && !addedLines.match(/try\s*\{/) && !addedLines.match(/\.catch\(/)) {
-        issues.errorHandling.push('ℹ️  Verify error handling for async operations');
-    }
-
     // Check for direct fetch instead of using api client
     if (addedLines.match(/fetch\s*\(/)) {
         issues.codeSmells.push('⚠️  Consider using the api.ts client instead of direct fetch calls');
-    }
-
-    // Check for setState in loops
-    if (addedLines.match(/for.*\{[^}]*set\w+\(/s) || addedLines.match(/\.map.*set\w+\(/s)) {
-        issues.performance.push('⚠️  Avoid calling setState in loops - batch state updates');
-    }
-
-    // Check for missing cleanup in useEffect
-    if (addedLines.match(/useEffect\s*\([^)]*\)\s*\{/s) && !addedLines.match(/return\s+\(\)\s*=>/)) {
-        issues.performance.push('ℹ️  Verify useEffect has cleanup function if needed (subscriptions, timers, etc.)');
     }
 
     // Check for any type usage
@@ -157,6 +141,21 @@ function analyzeTypeScriptFiles(files, diff, issues) {
     // Check for console.log (should be removed before merge)
     if (addedLines.match(/console\.log\(/)) {
         issues.codeSmells.push('ℹ️  Remove console.log statements before merging');
+    }
+
+    // Check for setState pattern that might be in loops
+    if (addedLines.match(/\bset[A-Z]\w+\(/) && (addedLines.match(/\bfor\s*\(/) || addedLines.match(/\.forEach\(/))) {
+        issues.performance.push('ℹ️  Review state updates - avoid calling setState multiple times in loops');
+    }
+
+    // Check for useEffect without considering cleanup
+    if (addedLines.match(/useEffect\s*\(/)) {
+        issues.performance.push('ℹ️  Review useEffect - ensure cleanup function if subscribing to events, timers, or connections');
+    }
+
+    // Check for missing error handling in async
+    if (addedLines.match(/await\s+/) && !addedLines.includes('try')) {
+        issues.errorHandling.push('ℹ️  Review async error handling - ensure errors are caught or propagated appropriately');
     }
 }
 
