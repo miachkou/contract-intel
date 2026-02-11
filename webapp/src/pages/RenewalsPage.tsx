@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { contractsApi, type Contract } from '../lib/api';
+import { contractsApi } from '../lib/api';
 import './RenewalsPage.css';
 
 export function RenewalsPage() {

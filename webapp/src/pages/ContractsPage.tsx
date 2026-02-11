@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { contractsApi, type Contract } from '../lib/api';
+import { contractsApi } from '../lib/api';
 import './ContractsPage.css';
 
 export function ContractsPage() {
@@ -112,7 +112,7 @@ export function ContractsPage() {
                                     <td className="vendor-cell">{contract.vendor}</td>
                                     <td className="title-cell">{contract.title}</td>
                                     <td className="date-cell">
-                                        {new Date(contract.renewalDate).toLocaleDateString()}
+                                        {contract.renewalDate ? new Date(contract.renewalDate).toLocaleDateString() : 'N/A'}
                                     </td>
                                     <td className="risk-cell">
                                         <span className={`risk-badge risk-${getRiskLevel(contract.riskScore ?? 0)}`}>
