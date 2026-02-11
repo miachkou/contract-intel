@@ -76,7 +76,10 @@ dotnet test
 
 ## Database
 
-The application uses SQLite by default for development. Migrations are applied automatically on startup in development mode.
+The application uses SQLite by default for development. On startup in development mode, the application automatically:
+- Creates the database file if it doesn't exist
+- Applies any pending migrations
+- Seeds initial test data
 
 To manually manage migrations (e.g., creating new migrations, rolling back, or running migrations in non-development environments):
 ```bash
