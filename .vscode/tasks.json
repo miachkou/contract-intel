@@ -25,7 +25,9 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/src/WebApi/WebApi.csproj"
+        "${workspaceFolder}/src/WebApi/WebApi.csproj",
+        "--launch-profile",
+        "http"
       ],
       "group": "none",
       "isBackground": true,
@@ -33,7 +35,7 @@
         "base": "$msCompile",
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "^dotnet watch",
+          "beginsPattern": "^dotnet watch.*(Building|Hot reload)",
           "endsPattern": "^\\s*Now listening on:\\s+https?://\\S+"
         }
       },
@@ -62,7 +64,7 @@
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "^\\s*VITE",
+          "beginsPattern": "^\\s*VITE v[0-9]",
           "endsPattern": "^\\s*➜\\s+Local:\\s+https?://\\S+"
         }
       },
