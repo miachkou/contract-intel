@@ -41,4 +41,15 @@ public record ClauseResponse
     public decimal? Confidence { get; init; }
     public int? PageNumber { get; init; }
     public required DateTime ExtractedAt { get; init; }
+    public string? ApprovedBy { get; init; }
+    public DateTime? ApprovedAt { get; init; }
 }
+
+public record UpdateClauseRequest
+{
+    public string? ClauseType { get; init; }
+    public string? Excerpt { get; init; }
+    public bool? Approved { get; init; }
+    public string? ApprovedBy { get; init; }
+}
+

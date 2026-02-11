@@ -47,6 +47,15 @@ export interface Clause {
     confidence: number;
     pageNumber?: number;
     extractedAt: string;
+    approvedBy?: string;
+    approvedAt?: string;
+}
+
+export interface UpdateClauseRequest {
+    clauseType?: string;
+    excerpt?: string;
+    approved?: boolean;
+    approvedBy?: string;
 }
 
 export interface CreateContractRequest {
@@ -82,4 +91,7 @@ export const contractsApi = {
 
     getClauses: (contractId: string) =>
         api.get<Clause[]>(`/contracts/${contractId}/clauses`),
+
+    updateClause: (contractId: string, clauseId: string, data: UpdateClauseRequest) =>
+        api.patch<Clause>(`/contracts/${contractId}/clauses/${clauseId}`, data),
 };
