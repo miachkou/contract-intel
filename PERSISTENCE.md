@@ -99,22 +99,57 @@ To add support for SQL Server or PostgreSQL:
 2. Update connection string in appsettings.json
 3. Change the `Database:Provider` setting
 
-## Development Bootstrap
+## EF Core Migrations
+
+**Location:** `src/Infrastructure/Migrations/`
+
+The project uses EF Core Migrations to manage database schema changes. Migrations are version-controlled and allow for safe schema evolution.
+
+### Common Migration Commands
+
+All commands should be run from the repository root directory.
+
+**Add a new migration:**
+```bash
+dotnet ef migrations add <MigrationName> --project src/Infrastructure --startup-project src/WebApi
+```
+
+**Update the database (apply pending migrations):**
+```bash
+dotnet ef database update --project src/Infrastructure --startup-project src/WebApi
+```
+
+**List all migrations:**
+```bash
+dotnet ef migrations list --project src/Infrastructure --startup-project src/WebApi
+```
+
+**Remove the last migration (if not yet applied):**
+```bash
+dotnet ef migrations remove --project src/Infrastructure --startup-project src/WebApi
+```
+
+**Generate SQL script for migrations:**
+```bash
+dotnet ef migrations script --project src/Infrastructure --startup-project src/WebApi
+```
+
+### Development Bootstrap
 
 **Location:** `src/WebApi/Program.cs`
 
-In development mode, the database is automatically created on startup:
+In development mode, migrations are automatically applied at startup:
 
 ```csharp
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ContractIntelDbContext>();
-    await dbContext.Database.EnsureCreatedAsync();
+    await dbContext.Database.MigrateAsync();
 }
 ```
 
-**Note:** For production, use EF Core Migrations instead of `EnsureCreatedAsync()`.
+**Note:** In production, apply migrations as part of your deployment process rather than at startup.
 
 ## Database Configuration
 
@@ -170,7 +205,6 @@ A sample `ContractsController` is provided at `src/WebApi/Controllers/ContractsC
 ## Next Steps
 
 This foundation is ready for:
-- Adding EF Core Migrations for production deployments
 - Implementing repositories/unit of work pattern in Application layer
 - Adding query specifications for complex business logic
 - Implementing CQRS with MediatR
