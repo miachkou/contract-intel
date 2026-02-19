@@ -53,6 +53,9 @@ export function ContractDetailPage() {
             queryClient.invalidateQueries({ queryKey: ['clauses', id] });
             setTimeout(() => setExtractSuccess(false), 3000);
         },
+        onError: (error: any) => {
+            console.error('Extraction error:', error);
+        },
     });
 
     // Update clause mutation
@@ -209,7 +212,11 @@ export function ContractDetailPage() {
                     )}
                     {extractMutation.isError && (
                         <div className="error-message">
-                            Failed to run extraction. Please try again.
+                            <strong>Extraction failed.</strong>
+                            <br />
+                            {(extractMutation.error as any)?.response?.data?.error || 'Please ensure your PDF contains extractable text (not a scanned/image-based document).'}
+                            <br />
+                            <small>Tip: Try opening the PDF and selecting text with your mouse. If you can\'t select text, it\'s an image-based PDF that requires OCR.</small>
                         </div>
                     )}
                 </div>

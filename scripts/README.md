@@ -69,4 +69,4 @@ The helper analyzes code for:
 
 ## See Also
 
-- [PR_REVIEW_GUIDE.md](../PR_REVIEW_GUIDE.md) - Comprehensive review guidelines
+- [PR_REVIEW_GUIDE.md](../docs/PR_REVIEW_GUIDE.md) - Comprehensive review guidelines
