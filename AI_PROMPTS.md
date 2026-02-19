@@ -13,7 +13,7 @@ This document contains the prompts used during the development of the Contract I
 A contract management system with AI-powered clause detection, risk scoring, and renewal tracking capabilities. The application analyzes PDF contracts, extracts key clauses, calculates risk scores, and monitors upcoming renewals.
 
 ### Tech Stack
-- **Backend:** .NET 8, ASP.NET Core, Entity Framework Core, SQLite/PostgreSQL
+- **Backend:** .NET 9, ASP.NET Core, Entity Framework Core, SQLite/PostgreSQL
 - **Frontend:** React, TypeScript, Vite, React Query, Axios
 - **AI/ML:** Rule-based clause detection with regex patterns
 - **Infrastructure:** GitHub Actions, VS Code tasks
