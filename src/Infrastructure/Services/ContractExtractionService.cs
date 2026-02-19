@@ -79,8 +79,11 @@ public sealed class ContractExtractionService : IContractExtractionService
                     $"File not found: {latestDocument.FilePath}");
             }
 
+            // Convert relative path to absolute path for PDF extraction
+            var fullPath = _fileStorage.GetFullPath(latestDocument.FilePath);
+
             textContent = await _textExtractor.ExtractTextAsync(
-                latestDocument.FilePath,
+                fullPath,
                 cancellationToken);
 
             if (string.IsNullOrWhiteSpace(textContent.FullText))
