@@ -1,0 +1,17 @@
+# GitHub Copilot configuration for this repository.
+# See: https://docs.github.com/en/copilot/reference/customization-cheat-sheet
+
+suggestions:
+  # Enable inline suggestions by default
+  enabled: true
+  inline: true
+  # Enable Copilot Chat in supported editors
+  chat: true
+
+# Exclude certain paths from Copilot suggestions to reduce noise.
+# For example, generated files, docs, or third-party code.
+files:
+  exclude:
+    - "docs/**"
+    - "scripts/**"
+    - "webapp/node_modules/**"
